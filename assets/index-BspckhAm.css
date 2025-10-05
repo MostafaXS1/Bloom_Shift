@@ -486,3 +486,36 @@ footer {
 .align-center {
   text-align: center;
 }
+/* Result / API output styles (used by src/main.js) */
+.result-preview{
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  box-shadow:var(--card-shadow);
+  max-width:720px;
+}
+.result-preview-img{max-width:320px;border-radius:8px;display:block;margin-bottom:12px}
+.result-filename{display:block;margin-bottom:8px;color:var(--muted);font-size:13px}
+.result-item{padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--surface);margin-bottom:10px;box-shadow:var(--card-shadow)}
+.result-item-inner{display:flex;align-items:center;gap:12px}
+.result-title{font-size:16px;font-weight:700;color:var(--accent);display:flex;align-items:center;gap:8px}
+.confidence-badge{font-weight:700;color:var(--accent-2);margin-left:8px}
+.result-desc{margin-top:8px;color:var(--muted)}
+.result-bloom,.result-locations{margin-top:8px}
+.result-locations a{color:var(--accent);text-decoration:underline}
+.result-error{color:crimson}
+.result-spinner{font-weight:600}
+.result-wait{margin-top:8px;color:var(--muted)}
+.result-raw pre{white-space:pre-wrap}
+
+/* small responsive tweak for preview images */
+@media (max-width:640px){
+  .result-preview-img{max-width:100%}
+}
+
+/* hover for links inside results */
+.result-locations a:hover{color:color-mix(in srgb,var(--accent) 60%, var(--accent-2) 40%)}
+
+/* End result styles */
+
