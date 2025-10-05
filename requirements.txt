@@ -1,0 +1,8 @@
+gradio
+transformers
+torch
+Pillow
+wikipedia
+requests
+beautifulsoup4
+lxml
