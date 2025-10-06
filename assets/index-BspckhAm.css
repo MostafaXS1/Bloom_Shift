@@ -193,7 +193,7 @@ h2 {
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
 }
 .card {
@@ -358,7 +358,7 @@ footer {
     align-items: start;
   }
   .grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
   .creators {
     grid-template-columns: repeat(6, 1fr);
@@ -504,4 +504,12 @@ footer {
 }
 .result-locations a:hover {
   color: color-mix(in srgb, var(--accent) 60%, var(--accent-2) 40%);
+}
+@media (max-width: 580px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+  .card {
+    width: 100%;
+  }
 }
