@@ -534,3 +534,61 @@ footer {
     width: 100%;
   }
 }
+
+#modelOutput,
+.result-preview,
+.result-item,
+.result-desc,
+.result-bloom,
+.result-locations,
+.result-raw,
+.result-raw pre,
+.result-raw code {
+  max-width: 100%;
+  box-sizing: border-box;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.result-raw pre,
+pre,
+code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+#modelOutput a,
+.result-locations a,
+.result-raw a,
+a {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  display: inline;
+}
+
+#modelOutput img,
+.result-preview-img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wrap,
+.nav,
+.hero,
+.grid,
+.identifier,
+.result-preview,
+.result-item {
+  min-width: 0;
+}
+
+@media (max-width: 420px) {
+  .result-preview,
+  .result-item,
+  #modelOutput {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
