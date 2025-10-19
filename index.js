@@ -27,6 +27,28 @@
     fetch(link.href, fetchOpts);
   }
 })();
+document.addEventListener("DOMContentLoaded", () => {
+  const hamburgerBtn = document.getElementById("hamburgerBtn");
+  const mobileMenu = document.getElementById("mobileMenu");
+  const navLinks = document.querySelectorAll(".mobile-menu-link, .cta-mobile");
+  hamburgerBtn.addEventListener("click", () => {
+    const isExpanded = hamburgerBtn.getAttribute("aria-expanded") === "true";
+    hamburgerBtn.setAttribute("aria-expanded", !isExpanded);
+    mobileMenu.classList.toggle("active");
+  });
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+      mobileMenu.classList.remove("active");
+    });
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".nav")) {
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+      mobileMenu.classList.remove("active");
+    }
+  });
+});
 const scriptRel = "modulepreload";
 const assetsURL = function(dep) {
   return "/" + dep;
@@ -1999,9 +2021,30 @@ window.addEventListener("DOMContentLoaded", () => {
       textEl.disabled = false;
     }
   }
-  fileEl.addEventListener("change", () => {
+  async function sendImageFile(file) {
+    if (!file) return;
+    outEl.textContent = "Waiting for model response...";
+    submitBtn.disabled = true;
+    try {
+      const client = await ee.connect(HF_SPACE);
+      const wrapped = await is(file);
+      const payload = { image: wrapped, typed_name: "" };
+      const res = await client.predict("/classify", payload);
+      const primary = res && res.data ? Array.isArray(res.data) ? res.data[0] : res.data : typeof res === "string" ? res : JSON.stringify(res);
+      renderMarkdownResponse(primary, outEl);
+    } catch (err) {
+      console.error("Image upload error:", err);
+      outEl.textContent = "Error: " + (err?.message || String(err));
+    } finally {
+      submitBtn.disabled = false;
+    }
+  }
+  fileEl.addEventListener("change", async () => {
     const f = fileEl.files && fileEl.files[0] || null;
     setSelectedFile(f);
+    if (f) {
+      await sendImageFile(f);
+    }
   });
   dropZone.addEventListener("click", () => {
     if (fileEl.disabled) return;
@@ -2014,7 +2057,7 @@ window.addEventListener("DOMContentLoaded", () => {
   dropZone.addEventListener("dragleave", () => {
     dropZone.classList.remove("drag-over");
   });
-  dropZone.addEventListener("drop", (e) => {
+  dropZone.addEventListener("drop", async (e) => {
     e.preventDefault();
     dropZone.classList.remove("drag-over");
     const dt2 = e.dataTransfer;
@@ -2028,6 +2071,7 @@ window.addEventListener("DOMContentLoaded", () => {
       fileEl._tempFile = file;
     }
     setSelectedFile(file);
+    await sendImageFile(file);
   });
   clearBtn.addEventListener("click", () => {
     textEl.value = "";

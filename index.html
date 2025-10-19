@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bloom Shift — Flower Identifier</title>
+    <title>Bloom Shift</title>
     <script type="module" crossorigin src="/index.js"></script>
     <link rel="stylesheet" crossorigin href="/style.css">
   </head>
@@ -14,29 +14,42 @@
           <div class="logo">BS</div>
           <div>
             <h1>Bloom Shift</h1>
-            <div style="font-size: 12px; color: var(--accent)">
+            <div class="brand-subtitle">
               Growth &amp; Bloom Project
             </div>
           </div>
         </div>
 
-        <div class="nav-links">
+        <button class="hamburger" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <div class="nav-links" id="navLinks">
           <a href="#about">About</a>
           <a href="#work">Research</a>
           <a href="#team">Team</a>
-          <!-- keep CTA but it won't affect your JS -->
           <button class="cta" type="button" id="contactBtn">Contact</button>
+        </div>
+
+        <div class="mobile-menu" id="mobileMenu">
+          <a href="#about" class="mobile-menu-link">About</a>
+          <a href="#work" class="mobile-menu-link">Research</a>
+          <a href="#team" class="mobile-menu-link">Team</a>
+          <button class="cta cta-mobile" type="button" id="contactBtnMobile">Contact</button>
         </div>
       </nav>
 
       <section class="hero">
         <div class="hero-left">
-          <h2>Bloom Shift — Flower Identifier with Blooming &amp; Location Info</h2>
+          <span class="kicker">New Launch</span>
+          <h2>Bloom Shift - Flower Identifier with Blooming &amp; Location Info</h2>
           <p class="lead">
             Upload a flower's photo or name to get information about it
           </p>
 
-          <div class="grid" style="margin-top:22px; grid-template-columns: repeat(4,1fr)">
+          <div class="grid" style="margin-top:32px">
             <div class="card">
               <h3>SEDAC DAAC</h3>
               <p>
@@ -71,35 +84,33 @@
           </div>
 
           <!-- Identifier (main app UI) -->
-          <div class="identifier" aria-labelledby="identifier-title" style="margin-top:22px">
-            <div id="identifier-title" style="font-weight:700; margin-bottom:12px; font-size:16px">
+          <div class="identifier" aria-labelledby="identifier-title" style="margin-top:32px">
+            <div id="identifier-title" class="identifier-title">
               Flower Identifier
             </div>
 
-            <label for="userTextInput">Type plant name (e.g. "sunflower", "lavender")</label>
+            <label for="userTextInput" class="input-label">Type plant name (e.g. "sunflower", "lavender")</label>
 
-            <div class="search-row" style="display:flex; gap:8px; align-items:center; margin-top:8px;">
-              <!-- text input (your JS expects id="userTextInput") -->
-              <input id="userTextInput" name="userTextInput" type="text" placeholder='e.g. "sunflower"' aria-label="Plant name" autocomplete="off" />
-
-              <!-- submit and clear (your JS expects id="submitBtn" and "clearBtn") -->
-              <button id="submitBtn" class="identify-btn" type="button">Identify</button>
-              <button id="clearBtn" class="clear-btn" type="button">Clear</button>
+            <div class="search-row">
+              <input id="userTextInput" name="userTextInput" type="text" placeholder='e.g. "sunflower"' aria-label="Plant name" autocomplete="off" class="input-field" />
+              <button id="submitBtn" class="btn btn-primary" type="button">Identify</button>
+              <button id="clearBtn" class="btn btn-secondary" type="button">Clear</button>
             </div>
 
-            <!-- file input (hidden) — JS expects id="userImageInput" -->
-            <input id="userImageInput" name="userImageInput" type="file" accept="image/*" capture="environment" class="hidden-input" />
+            <input id="userImageInput" name="userImageInput" type="file" accept="image/*" class="hidden-input" />
 
-            <!-- file status / hint -->
-            <div id="fileStatus" style="margin-top:8px; font-size:13px; color:var(--muted)">No file chosen</div>
+            <div id="fileStatus" class="file-status">No file chosen</div>
 
-            <!-- drop zone (click to open file) -->
-            <div id="dropZone" class="drop-zone" tabindex="0" aria-label="Drag and drop an image here" style="margin-top:12px">
-              Drag & drop an image here or click to select
+            <div id="dropZone" class="drop-zone" tabindex="0" aria-label="Drag and drop an image here">
+              <svg class="drop-zone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <p>Drag & drop an image here or click to select</p>
             </div>
 
-            <!-- result area (we include #result for CSS and inner #modelOutput for JS) -->
-            <div id="result" aria-live="polite" style="margin-top:12px">
+            <div id="result" aria-live="polite" class="result-container">
               <div id="modelOutput" class="result-preview">Model output will appear here.</div>
             </div>
           </div>
@@ -107,8 +118,8 @@
         </div>
       </section>
 
-      <section id="team" style="margin-top:20px">
-        <h3 style="margin-bottom:10px; color:var(--accent)">Creators</h3>
+      <section id="team" class="team-section">
+        <h3 class="section-title">Creators</h3>
         <div class="creators">
           <div class="creator">Mostafa Mohamed</div>
           <div class="creator">Mohamed Tamer</div>
@@ -128,10 +139,8 @@
     <div class="modal" id="howModal" aria-hidden="true">
       <div class="modal-content">
         <p>Upload a flower photo and get predictions with Wikipedia info, blooming period (DuckDuckGo search), and location links (Google Maps).</p>
-        <button class="close-btn" type="button" onclick="document.getElementById('howModal').setAttribute('aria-hidden','true')">Close</button>
+        <button class="btn btn-primary" type="button" onclick="document.getElementById('howModal').setAttribute('aria-hidden','true')">Close</button>
       </div>
     </div>
-
-    <!-- Keep your existing client JS path; it should rely on ids above -->
   </body>
 </html>
