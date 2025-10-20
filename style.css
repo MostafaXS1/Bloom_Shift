@@ -929,3 +929,7 @@ a {
 @media (prefers-reduced-motion: reduce){
   *::-webkit-scrollbar-thumb { transition: none !important; transform: none !important; }
 }
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
