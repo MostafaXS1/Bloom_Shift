@@ -796,7 +796,7 @@ a {
 }
 
 .mobile-menu {
-  transform: translateY(-12px);
+  transform: translateY(-13px);
   display: none;
   position: absolute;
   top: 100%;
@@ -819,7 +819,7 @@ a {
 
 @media (prefers-color-scheme: light) {
   .mobile-menu::after {
-    transform: translateY(-12px);
+    transform: translateY(-13px);
     content: "";
     position: absolute;
     left: 0;
@@ -834,7 +834,7 @@ a {
 
 @media (prefers-color-scheme: dark) {
   .mobile-menu::after {
-    transform: translateY(-12px);
+    transform: translateY(-13px);
     content: "";
     position: absolute;
     left: 0;
@@ -849,7 +849,7 @@ a {
 
 .mobile-menu.active {
   display: flex;
-  transform: translateY(-12px);
+  transform: translateY(-13px);
 }
 
 nav:has(.mobile-menu.active) {
