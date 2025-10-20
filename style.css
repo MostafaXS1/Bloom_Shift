@@ -971,3 +971,7 @@ nav:has(.mobile-menu.active) {
 .btn-secondary {
   border: 1px solid var(--surface-secondary);
 }
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
