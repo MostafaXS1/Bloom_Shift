@@ -11,15 +11,18 @@
   --bg: #fafafa;
   --surface: #ffffff;
   --surface-secondary: #f5f5f5;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
   --muted: #71717a;
   --muted-light: #a1a1aa;
   --text: #09090b;
   --text-secondary: #52525b;
-  --accent: #0d9488;
-  --accent-light: #14b8a6;
-  --accent-2: #16a34a;
+  --accent: #2b2b2b;
+  --accent-light: #2b2b2e;
+  --accent-2: #2b2b2e;
+  --grid-line: rgba(207, 207, 207, 0.04);
+  --grid-glow: rgba(227, 227, 227, 0.08);
   --border: #e4e4e7;
-  --glass: rgba(13, 148, 136, 0.05);
+  --glass: rgba(216, 216, 216, 0.06);
   --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --trans-duration: 0.25s;
@@ -27,7 +30,7 @@
   --trans-delay: 0s;
   --trans: var(--trans-duration) var(--trans-ease) var(--trans-delay);
   --trans-all: all var(--trans);
-  --scroll-track: #fafafa;
+  --scroll-track: #ffffff;
   --scroll-bg: transparent;
   --scroll-thumb: var(--accent);
   --scroll-thumb-hover: var(--accent-light);
@@ -38,21 +41,23 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #09090b;
+    --bg: #0c0c0c;
     --surface: #18181b;
-    --surface-secondary: #27272a;
-    --muted: #a1a1aa;
-    --muted-light: #71717a;
+    --surface-secondary: #272727;
+    --muted: #a9a9a9;
+    --muted-light: #7f7f7f;
     --text: #fafafa;
     --text-secondary: #d4d4d8;
-    --accent: #14b8a6;
-    --accent-light: #2dd4bf;
-    --accent-2: #22c55e;
+    --accent: #2b2b2e;
+    --accent-light: #323232;
+    --accent-2: #313131;
+    --grid-line: rgba(228, 228, 228, 0.03);
+    --grid-glow: rgba(223, 223, 223, 0.06);
+    --scroll-track: #09090b;
     --border: #3f3f46;
-    --glass: rgba(20, 184, 166, 0.08);
+    --glass: rgba(207, 207, 207, 0.08);
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
     --card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-    --scroll-track: #09090b;
     --scroll-bg: rgba(255,255,255,0.02);
     --scroll-thumb: var(--accent);
     --scroll-thumb-hover: var(--accent-light);
@@ -85,7 +90,12 @@ body {
   margin: 0;
   font-family: var(--font-sans);
   font-size: var(--type-base);
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(transparent calc(24px - 1px), var(--grid-line) 1px),
+    linear-gradient(90deg, transparent calc(24px - 1px), var(--grid-line) 1px);
+  background-size: 24px 24px;
+  background-blend-mode: overlay;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -146,13 +156,13 @@ img {
   place-items: center;
   font-weight: 700;
   font-size: 16px;
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+  box-shadow: 0 4px 12px rgba(150, 150, 150, 0.35);
   flex-shrink: 0;
 }
 
 .logo:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(13, 148, 136, 0.35);
+  box-shadow: 0 6px 16px rgba(150, 150, 150, 0.35);
 }
 
 .brand h1 {
@@ -209,13 +219,142 @@ img {
 .btn-primary {
   background: var(--accent);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
+  box-shadow: 0 2px 8px rgba(43, 43, 43, 0.2);
+}
+
+/* Color picker button swatch */
+.color-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.08) inset;
+}
+
+.btn.btn-secondary.color-picker {
+  padding: 6px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Desktop color input anchor (keeps native picker positioned under button) */
+.color-picker-wrapper {
+  position: fixed;
+  display: none;
+  flex-direction: column;
+  gap: 0;
+  z-index: 100;
+  pointer-events: auto;
+}
+.color-picker-wrapper[aria-hidden="false"] {
+  display: flex;
+}
+.color-picker-wrapper input[type="color"] {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Mobile color panel that appears above the Contact button */
+.mobile-color-panel {
+  display: none;
+  position: relative;
+  border-radius: 10px;
+  height: auto;
+}
+
+/* Global hue slider styles for both desktop and mobile */
+.hue-slider {
+  width: 100%;
+  height: 24px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(90deg, 
+    hsl(0, 75%, 45%), 
+    hsl(60, 75%, 45%), 
+    hsl(120, 75%, 45%), 
+    hsl(180, 75%, 45%), 
+    hsl(240, 75%, 45%), 
+    hsl(300, 75%, 45%), 
+    hsl(0, 75%, 45%)) !important;
+}
+
+.hue-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.hue-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* show mobile panel on small screens when active */
+@media (max-width: 639px) {
+  .mobile-color-panel {
+    display: block;
+    width: 100%;
+  }
+  .mobile-color-panel input[type="color"] {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+  }
+
+  .mobile-color-controls {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    padding: 8px 0;
+  }
+  .hue-slider-row {
+    display: flex;
+    align-items: center;
+    padding: 0 8px;
+  }
+  
+  .mc-preview-row{ display:flex; gap:8px; align-items:center; padding: 0 8px; }
+  .mc-preview{ width: 48px; height: 40px; border-radius:8px; border:1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.08) inset; }
+  .mobile-color-panel .btn-primary{ padding:8px 12px; font-size:14px; }
+}
+
+@keyframes mobileGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 .cta:hover,
 .btn-primary:hover {
   background: var(--accent-light);
-  box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+  box-shadow: 0 4px 12px rgba(203, 203, 203, 0.3);
   transform: translateY(-1px);
 }
 
@@ -486,7 +625,7 @@ h2 {
 }
 
 .result-error {
-  color: #ef4444;
+  color: var(--accent-2);
   font-weight: 600;
 }
 
@@ -829,6 +968,7 @@ a {
     pointer-events: none;
     z-index: -1;
     border-radius: inherit;
+    background: var(--surface);
   }
 }
 
@@ -844,6 +984,7 @@ a {
     pointer-events: none;
     z-index: -1;
     border-radius: inherit;
+    background: var(--surface);
   }
 }
 

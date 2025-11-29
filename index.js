@@ -27,22 +27,272 @@
     fetch(link.href, fetchOpts);
   }
 })();
+const root = document.documentElement;
+const picker = document.getElementById("accentPicker");
+const btn = document.getElementById("colorBtn");
+const btnMobile = document.getElementById("colorBtnMobile");
+const swatch = document.getElementById("colorSwatch");
+let manual = false;
+let hue = Math.floor(Math.random() * 360);
+let lastTs = null;
+function hsl(h, s, l2) {
+  return `hsl(${h} ${s}% ${l2}%)`;
+}
+function setAccent(hex) {
+  manual = true;
+  const clampedHex = clampHexRgb(hex, 15, 199);
+  const { h, s, l: l2 } = hexToHsl(clampedHex);
+  hue = h;
+  root.style.setProperty("--accent", hsl(h, Math.max(60, s), Math.min(50, l2)));
+  root.style.setProperty("--accent-light", hsl(h, Math.max(40, s - 5), Math.min(70, l2 + 20)));
+  root.style.setProperty("--accent-2", hsl((h + 340) % 360, Math.max(60, s), Math.max(30, l2 - 10)));
+  if (swatch) swatch.style.background = clampedHex;
+}
+function clampHexRgb(hex, minV = 0, maxV = 255) {
+  hex = (hex || "").replace("#", "");
+  if (hex.length === 3) {
+    hex = hex.split("").map((c) => c + c).join("");
+  }
+  if (hex.length !== 6) return `#${hex}`;
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const clamp = (v) => Math.max(minV, Math.min(maxV, v));
+  const rr = clamp(r);
+  const gg = clamp(g);
+  const bb = clamp(b);
+  const toHex = (v) => v.toString(16).padStart(2, "0");
+  return `#${toHex(rr)}${toHex(gg)}${toHex(bb)}`;
+}
+function hexToHsl(hex) {
+  hex = hex.replace("#", "");
+  const bigint = parseInt(hex, 16);
+  const r = bigint >> 16 & 255;
+  const g = bigint >> 8 & 255;
+  const b = bigint & 255;
+  const rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
+  const max = Math.max(rNorm, gNorm, bNorm), min = Math.min(rNorm, gNorm, bNorm);
+  let h = 0, s = 0, l2 = (max + min) / 2;
+  if (max === min) {
+    h = 0;
+    s = 0;
+  } else {
+    const d = max - min;
+    s = l2 > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rNorm:
+        h = (gNorm - bNorm) / d + (gNorm < bNorm ? 6 : 0);
+        break;
+      case gNorm:
+        h = (bNorm - rNorm) / d + 2;
+        break;
+      case bNorm:
+        h = (rNorm - gNorm) / d + 4;
+        break;
+    }
+    h = Math.round(h * 60);
+    s = Math.round(s * 100);
+    l2 = Math.round(l2 * 100);
+  }
+  return { h, s, l: l2 };
+}
+function rgbToHex(r, g, b) {
+  const toHex = (v) => Math.round(v).toString(16).padStart(2, "0");
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+function showMobileColorControls() {
+  if (!mobilePanel) return;
+  mobilePanel.innerHTML = `
+    <div class="mobile-color-controls">
+      <div class="hue-slider-row">
+        <input id="mc-hue" type="range" min="0" max="360" value="${Math.round(hue)}" class="hue-slider">
+      </div>
+      <div class="mc-preview-row">
+        <div id="mc-preview" class="mc-preview"></div>
+        <button id="mc-apply" class="btn btn-primary">Apply</button>
+      </div>
+    </div>`;
+  mobilePanel.setAttribute("aria-hidden", "false");
+  const hueIn = document.getElementById("mc-hue");
+  const preview = document.getElementById("mc-preview");
+  const applyBtn = document.getElementById("mc-apply");
+  function hueToRgbClamped(h) {
+    const hex = hslToHex(h, 75, 45);
+    let { r, g, b } = hexToRgb(hex);
+    const maxComp = Math.max(r, g, b);
+    const scale = 199 / maxComp;
+    r = Math.round(r * scale);
+    g = Math.round(g * scale);
+    b = Math.round(b * scale);
+    return rgbToHex(r, g, b);
+  }
+  function updatePreview() {
+    const h = parseInt(hueIn.value, 10);
+    const hex = hueToRgbClamped(h);
+    preview.style.background = hex;
+    preview.setAttribute("data-hex", hex);
+  }
+  hueIn.addEventListener("input", updatePreview);
+  updatePreview();
+  applyBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const hex = preview.getAttribute("data-hex");
+    if (hex) {
+      setAccent(hex);
+      mobilePanel.setAttribute("aria-hidden", "true");
+    }
+  });
+}
+function showDesktopColorControls() {
+  if (!pickerWrapper || !btn) return;
+  pickerWrapper.innerHTML = `
+    <div class="mobile-color-controls" style="margin: 8px; min-width: 220px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: var(--card-shadow-hover); padding: 12px;">
+      <div class="hue-slider-row">
+        <input id="dc-hue" type="range" min="0" max="360" value="${Math.round(hue)}" class="hue-slider">
+      </div>
+      <div class="mc-preview-row">
+        <div id="dc-preview" class="mc-preview"></div>
+        <button id="dc-apply" class="btn btn-primary">Apply</button>
+      </div>
+    </div>`;
+  pickerWrapper.setAttribute("aria-hidden", "false");
+  const btnRect = btn.getBoundingClientRect();
+  pickerWrapper.style.top = btnRect.bottom + 8 + "px";
+  pickerWrapper.style.left = btnRect.left + btnRect.width / 2 + "px";
+  pickerWrapper.style.transform = "translateX(-50%)";
+  const hueIn = document.getElementById("dc-hue");
+  const preview = document.getElementById("dc-preview");
+  const applyBtn = document.getElementById("dc-apply");
+  function hueToRgbClamped(h) {
+    const hex = hslToHex(h, 75, 45);
+    let { r, g, b } = hexToRgb(hex);
+    const maxComp = Math.max(r, g, b);
+    const scale = 199 / maxComp;
+    r = Math.round(r * scale);
+    g = Math.round(g * scale);
+    b = Math.round(b * scale);
+    return rgbToHex(r, g, b);
+  }
+  function updatePreview() {
+    const h = parseInt(hueIn.value, 10);
+    const hex = hueToRgbClamped(h);
+    preview.style.background = hex;
+    preview.setAttribute("data-hex", hex);
+  }
+  hueIn.addEventListener("input", updatePreview);
+  updatePreview();
+  applyBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const hex = preview.getAttribute("data-hex");
+    if (hex) {
+      setAccent(hex);
+      pickerWrapper.setAttribute("aria-hidden", "true");
+    }
+  });
+  const closeHandler = (e) => {
+    if (!e.target.closest(".color-picker-wrapper") && !e.target.closest("#colorBtn")) {
+      pickerWrapper.setAttribute("aria-hidden", "true");
+      document.removeEventListener("click", closeHandler);
+    }
+  };
+  document.addEventListener("click", closeHandler);
+}
+function hexToRgb(hex) {
+  hex = (hex || "").replace("#", "");
+  if (hex.length === 3) {
+    hex = hex.split("").map((c) => c + c).join("");
+  }
+  if (hex.length !== 6) return { r: 220, g: 100, b: 60 };
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return { r, g, b };
+}
+function hslToHex(h, s, l2) {
+  s /= 100;
+  l2 /= 100;
+  const a = s * Math.min(l2, 1 - l2);
+  const f = (n) => {
+    const k = (n + h / 30) % 12;
+    const color = l2 - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, "0");
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+function animate(ts2) {
+  if (!lastTs) lastTs = ts2;
+  const delta = ts2 - lastTs;
+  lastTs = ts2;
+  if (!manual) {
+    hue = (hue + delta * 0.03) % 360;
+    const c1 = hsl(Math.round(hue), 75, 45);
+    const c2 = hsl(Math.round((hue + 30) % 360), 85, 55);
+    const c3 = hsl(Math.round((hue + 330) % 360), 70, 35);
+    root.style.setProperty("--accent", c1);
+    root.style.setProperty("--accent-light", c2);
+    root.style.setProperty("--accent-2", c3);
+    if (swatch) swatch.style.background = c1;
+  }
+  requestAnimationFrame(animate);
+}
+const pickerWrapper = document.getElementById("colorPickerWrapper");
+const mobilePanel = document.getElementById("mobileColorPanel");
+if (btn) btn.addEventListener("click", (e) => {
+  if (!pickerWrapper) return;
+  e.stopPropagation();
+  showDesktopColorControls();
+});
+if (btnMobile) btnMobile.addEventListener("click", (e) => {
+  if (!mobilePanel) return;
+  e.stopPropagation();
+  if (window.matchMedia && window.matchMedia("(max-width: 639px)").matches) {
+    showMobileColorControls();
+  }
+});
+if (picker) {
+  picker.addEventListener("input", (e) => {
+    manual = true;
+    const hex = e.target.value;
+    setAccent(hex);
+  });
+  picker.addEventListener("blur", () => {
+    if (mobilePanel) mobilePanel.setAttribute("aria-hidden", "true");
+    if (pickerWrapper) pickerWrapper.setAttribute("aria-hidden", "true");
+  });
+  if (swatch) {
+    swatch.addEventListener("dblclick", () => {
+      manual = false;
+    });
+  }
+}
+if (swatch) {
+  const c1 = hsl(Math.round(hue), 75, 45);
+  const c2 = hsl(Math.round((hue + 30) % 360), 85, 55);
+  const c3 = hsl(Math.round((hue + 330) % 360), 70, 35);
+  root.style.setProperty("--accent", c1);
+  root.style.setProperty("--accent-light", c2);
+  root.style.setProperty("--accent-2", c3);
+  swatch.style.background = c1;
+}
+requestAnimationFrame(animate);
 document.addEventListener("DOMContentLoaded", () => {
   const hamburgerBtn = document.getElementById("hamburgerBtn");
   const mobileMenu = document.getElementById("mobileMenu");
-  const navLinks = document.querySelectorAll(".mobile-menu-link, .cta-mobile");
+  const navLinks = document.querySelectorAll(".mobile-menu-link");
   hamburgerBtn.addEventListener("click", () => {
     const isExpanded = hamburgerBtn.getAttribute("aria-expanded") === "true";
     hamburgerBtn.setAttribute("aria-expanded", !isExpanded);
     mobileMenu.classList.toggle("active");
   });
   navLinks.forEach((link) => {
-    link.addEventListener("click", () => {
+    link.addEventListener("click", (e) => {
+      if (e.target.id === "colorBtnMobile") return;
       hamburgerBtn.setAttribute("aria-expanded", "false");
       mobileMenu.classList.remove("active");
     });
   });
   document.addEventListener("click", (e) => {
+    if (e.target.closest("#colorBtnMobile") || e.target.closest("#mobileColorPanel")) return;
     if (!e.target.closest(".nav")) {
       hamburgerBtn.setAttribute("aria-expanded", "false");
       mobileMenu.classList.remove("active");

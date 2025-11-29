@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bloom Shift</title>
     <script type="module" crossorigin src="/index.js"></script>
-    <link rel="stylesheet" crossorigin href="style.css">
+    <link rel="stylesheet" crossorigin href="/style.css">
   </head>
   <body>
     <main class="wrap">
@@ -30,6 +30,10 @@
           <a href="#about">About</a>
           <a href="#work">Research</a>
           <a href="#team">Team</a>
+          <button id="colorBtn" class="btn btn-secondary" type="button" aria-label="Choose accent color">
+            <span id="colorSwatch" class="color-swatch" aria-hidden="true"></span>
+          </button>
+          <div id="colorPickerWrapper" class="color-picker-wrapper" aria-hidden="true"></div>
           <button class="cta" type="button" id="contactBtn">Contact</button>
         </div>
 
@@ -37,12 +41,15 @@
           <a href="#about" class="mobile-menu-link">About</a>
           <a href="#work" class="mobile-menu-link">Research</a>
           <a href="#team" class="mobile-menu-link">Team</a>
+          <button id="colorBtnMobile" class="cta cta-mobile" type="button" aria-label="Choose accent color">Color</button>
+          <div id="mobileColorPanel" class="mobile-color-panel" aria-hidden="true"></div>
           <button class="cta cta-mobile" type="button" id="contactBtnMobile">Contact</button>
         </div>
       </nav>
 
       <section class="hero">
         <div class="hero-left">
+          <span class="kicker">New Launch</span>
           <h2>Bloom Shift - Flower Identifier with Blooming &amp; Location Info</h2>
           <p class="lead">
             Upload a flower's photo or name to get information about it
@@ -141,5 +148,7 @@
         <button class="btn btn-primary" type="button" onclick="document.getElementById('howModal').setAttribute('aria-hidden','true')">Close</button>
       </div>
     </div>
+    <!-- hidden color input used by the color picker buttons -->
+    <input id="accentPicker" type="color" class="hidden-input" value="#dc2626" aria-hidden="true" />
   </body>
 </html>
